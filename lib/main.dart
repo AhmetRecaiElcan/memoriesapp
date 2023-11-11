@@ -3,8 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+
+class Memory {
+  String? name;
+  String? thumbnail; // Yeni eklenen thumbnail özelliği
+  String? details;
+
+  Memory({this.name, this.thumbnail, this.details});
+}
 
 void main() {
   runApp(MyApp());
@@ -19,7 +27,47 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  List<Memory> memories = [];
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  Widget _buildMemoryTile(int index) {
+    int startIndex = index * 2;
+    int endIndex = (index * 2) + 1;
+
+    Widget buildTile(int tileIndex) {
+      if (tileIndex < widget.memories.length) {
+        return ListTile(
+          title: Text(widget.memories[tileIndex].name ?? ''),
+          leading: widget.memories[tileIndex].thumbnail != null
+              ? Image.file(File(widget.memories[tileIndex].thumbnail!))
+              : null,
+          onTap: () {
+            // Detay sayfasına gitmek için burada bir yönlendirme yapabilirsiniz.
+          },
+        );
+      } else {
+        return Container();
+      }
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: buildTile(startIndex),
+        ),
+        SizedBox(width: 8.0),
+        Expanded(
+          child: buildTile(endIndex),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +75,11 @@ class MyHomePage extends StatelessWidget {
         title: Text('Memories'),
         centerTitle: true,
       ),
-      body: Center(
-        child: Text('Body Content Goes Here'),
+      body: ListView.builder(
+        itemCount: (widget.memories.length / 2).ceil(),
+        itemBuilder: (context, index) {
+          return _buildMemoryTile(index);
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
@@ -46,20 +97,22 @@ class MyHomePage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MemoryPage()),
-            );
-          },
-          child: Icon(Icons.add),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MemoryPage()),
+          );
+
+          if (result != null && result is Memory) {
+            setState(() {
+              widget.memories.add(result);
+            });
+          }
+        },
+        child: Icon(Icons.add),
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat, // Sağ alt köşe
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
@@ -76,7 +129,6 @@ class _MemoryPageState extends State<MemoryPage> {
   VideoPlayerController? _videoPlayerController;
   String? _videoThumbnail;
   TextEditingController _nameController = TextEditingController();
-  TextEditingController _detailsController = TextEditingController();
   TextEditingController _details2Controller = TextEditingController();
 
   Future _getImage(ImageSource source) async {
@@ -110,7 +162,7 @@ class _MemoryPageState extends State<MemoryPage> {
     });
   }
 
-  void _generateVideoThumbnail() async {
+  Future<void> _generateVideoThumbnail() async {
     final thumbnailPath = await VideoThumbnail.thumbnailFile(
       video: _videoFile!.path,
       thumbnailPath: (await getTemporaryDirectory()).path,
@@ -168,102 +220,19 @@ class _MemoryPageState extends State<MemoryPage> {
     );
   }
 
-  Future<void> _showMediaOptionsForChange() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Medya Değiştir'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Galeriden Fotoğraf Seç'),
-                onTap: () {
-                  _getImage(ImageSource.gallery);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Galeriden Video Seç'),
-                onTap: () {
-                  _getVideo(ImageSource.gallery);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Kameradan Fotoğraf Çek'),
-                onTap: () {
-                  _getImage(ImageSource.camera);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Kameradan Video Çek'),
-                onTap: () {
-                  _getVideo(ImageSource.camera);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  void _saveMemory() {
+    if (_nameController.text.isNotEmpty) {
+      Memory newMemory = Memory(
+        name: _nameController.text,
+        thumbnail:
+            _videoThumbnail ?? (_imageFile != null ? _imageFile!.path : null),
+        details: _details2Controller.text,
+      );
 
-  void _showDetailsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Detaylar'),
-          content: TextField(
-            controller: _detailsController,
-            maxLines: null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16.0),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Kapat'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showNameDetailsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('İsim Detayları'),
-          content: TextField(
-            controller: _nameController,
-            maxLines: null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16.0),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Kapat'),
-            ),
-          ],
-        );
-      },
-    );
+      Navigator.pop(context, newMemory); // Yeni belleği geri döndür
+    } else {
+      // Kullanıcıya isim girmesi hatırlatılabilir.
+    }
   }
 
   @override
@@ -280,7 +249,7 @@ class _MemoryPageState extends State<MemoryPage> {
           children: [
             _imageFile != null || _videoFile != null
                 ? GestureDetector(
-                    onTap: _showMediaOptionsForChange,
+                    onTap: _showMediaOptions,
                     child: Container(
                       height: 150.0,
                       decoration: BoxDecoration(
@@ -341,13 +310,6 @@ class _MemoryPageState extends State<MemoryPage> {
               ),
             ),
             SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Tarih',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
             GestureDetector(
               onTap: _showNameDetailsDialog,
               child: Container(
@@ -371,13 +333,37 @@ class _MemoryPageState extends State<MemoryPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Ekleme işlemleri burada yapılabilir
-        },
-        child: Icon(Icons.check), // Tik işareti ikonu
+        onPressed: _saveMemory,
+        child: Icon(Icons.check),
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat, // Sağ alt köşe
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  Future<void> _showNameDetailsDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('İsim Detayları'),
+          content: TextField(
+            controller: _nameController,
+            maxLines: null,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(16.0),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Kapat'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
