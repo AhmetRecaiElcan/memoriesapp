@@ -46,16 +46,20 @@ class MyHomePage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MemoryPage()),
-          );
-        },
-        child: Icon(Icons.add),
+      floatingActionButton: Container(
+        margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MemoryPage()),
+            );
+          },
+          child: Icon(Icons.add),
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat, // Sağ alt köşe
     );
   }
 }
@@ -366,6 +370,14 @@ class _MemoryPageState extends State<MemoryPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Ekleme işlemleri burada yapılabilir
+        },
+        child: Icon(Icons.check), // Tik işareti ikonu
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat, // Sağ alt köşe
     );
   }
 }
