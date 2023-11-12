@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,10 +8,11 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Memory {
   String? name;
-  String? thumbnail; // Yeni eklenen thumbnail özelliği
+  String? thumbnail;
   String? details;
+  String? date; // Tarih kutucuğu
 
-  Memory({this.name, this.thumbnail, this.details});
+  Memory({this.name, this.thumbnail, this.details, this.date});
 }
 
 void main() {
@@ -130,7 +130,8 @@ class _MemoryPageState extends State<MemoryPage> {
   VideoPlayerController? _videoPlayerController;
   String? _videoThumbnail;
   TextEditingController _nameController = TextEditingController();
-  TextEditingController _details2Controller = TextEditingController();
+  TextEditingController _detailsController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
 
   Future _getImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -227,10 +228,11 @@ class _MemoryPageState extends State<MemoryPage> {
         name: _nameController.text,
         thumbnail:
             _videoThumbnail ?? (_imageFile != null ? _imageFile!.path : null),
-        details: _details2Controller.text,
+        details: _detailsController.text,
+        date: _dateController.text,
       );
 
-      Navigator.pop(context, newMemory); // Yeni belleği geri döndür
+      Navigator.pop(context, newMemory);
     } else {
       // Kullanıcıya isim girmesi hatırlatılabilir.
     }
@@ -311,6 +313,14 @@ class _MemoryPageState extends State<MemoryPage> {
               ),
             ),
             SizedBox(height: 16.0),
+            TextField(
+              controller: _dateController,
+              decoration: InputDecoration(
+                labelText: 'Tarih', // Elma yerine Tarih
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             GestureDetector(
               onTap: _showNameDetailsDialog,
               child: Container(
@@ -320,7 +330,7 @@ class _MemoryPageState extends State<MemoryPage> {
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: TextField(
-                  controller: _details2Controller,
+                  controller: _detailsController,
                   maxLines: null,
                   decoration: InputDecoration(
                     labelText: 'Detaylar',

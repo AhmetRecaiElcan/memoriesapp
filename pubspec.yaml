@@ -39,6 +39,7 @@ dependencies:
   video_player: ^2.5.2
   video_thumbnail: ^0.5.3
   path_provider: ^2.0.8
+  intl: ^0.18.1
   
 
 dev_dependencies:
