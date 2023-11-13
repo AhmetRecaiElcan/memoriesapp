@@ -67,33 +67,30 @@ class MemoryDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Memory Details',
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'İsim: ${memory.name ?? ''}',
+                  style: TextStyle(fontSize: 18.0),
+                ),
                 SizedBox(height: 8.0),
                 Text(
                   'Tarih: ${memory.date ?? ''}',
                   style: TextStyle(fontSize: 18.0),
                 ),
-                SizedBox(height: 16.0),
+                SizedBox(height: 8.0),
                 Container(
-                  height: MediaQuery.of(context).size.height *
-                      0.6, // Adjusted height
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black),
                     borderRadius: BorderRadius.circular(15.0),
                   ),
                   padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 14.0),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                            'Detaylar: ${memory.details ?? ''}',
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'Detaylar: ${memory.details ?? ''}',
+                    style: TextStyle(fontSize: 18.0),
                   ),
                 ),
               ],
