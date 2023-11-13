@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'memory_detail_page.dart';
-import 'memory_page.dart';
 
 class Memory {
   String? name;
