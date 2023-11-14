@@ -40,41 +40,38 @@ class MemoryDetailPage extends StatelessWidget {
                 : Container(),
           ),
           SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8.0),
-                Text(
-                  'Tarih: ${memory.date ?? ''}',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-                SizedBox(height: 16.0),
-                Container(
-                  height: MediaQuery.of(context).size.height *
-                      0.6, // Adjusted height
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(15.0),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8.0),
+                  Text(
+                    'Tarih: ${memory.date ?? ''}',
+                    style: TextStyle(fontSize: 18.0),
                   ),
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 14.0),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                            'Detaylar: ${memory.details ?? ''}',
-                            style: TextStyle(fontSize: 18.0),
-                          ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: 200.0, // Maksimum yükseklik
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Detaylar: ${memory.details ?? ''}',
+                          style: TextStyle(fontSize: 15.0),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
